@@ -1,0 +1,323 @@
+
+Install-Package Swashbuckle.AspNetCore
+Install-Package Scalar.AspNetCore
+Install-Package Ocelot
+
+EmployeeApiGateWay Project:
+Ocelot.json
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/EmployeeRegistrationManagement",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7022
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/employee-registration",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/EmployeeAttendance",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7107
+        }
+      ],
+      "UpstreamPathTemplate": "/gateway/employee-attendance",
+      "UpstreamHttpMethod": [ "GET" ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:7226"
+  }
+}
+
+Program.cs File
+
+using Ocelot.DependencyInjection;
+using Ocelot.Middleware;
+using Scalar.AspNetCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Load Ocelot.json into app configuration
+builder.Configuration.AddJsonFile("Ocelot.json", optional: false, reloadOnChange: true);
+
+// Add services
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddOcelot(builder.Configuration);
+
+var app = builder.Build();
+
+// Swagger
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API Gateway v1");
+});
+
+// Scalar
+app.MapScalarApiReference(options =>
+{
+    options.Title = "My API Gateway";
+    options.Theme = ScalarTheme.DeepSpace;
+});
+
+// Redirect root to scalar
+app.MapGet("/", () => Results.Redirect("/scalar"));
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+
+app.MapControllers();
+
+// Ocelot should be at the end
+await app.UseOcelot();
+
+app.Run();
+
+
+EmployeeAttendanceManagement Project
+using Scalar.AspNetCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+//Enable Swagger Json
+app.UseSwagger();
+
+//Enable Swagger UI
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
+});
+
+//Enable Scalar UI
+app.MapScalarApiReference(options =>
+{
+    options.Title = "My API Emp Attendence Mgmt Reference";
+    options.Theme = ScalarTheme.DeepSpace;
+});
+
+//Optional: Redirect root URL to scalar
+app.MapGet("/", () => Results.Redirect("/scalar"));
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+
+EmployeeAttendanceDetails Model:
+namespace EmployeeAttendanceManagement
+{
+    public class EmployeeAttendanceDetailsModel
+    {
+        public int EmployeeId { get; set; }
+        public string EmployeeName { get; set; }
+        public double AttendancePercentage { get; set; }
+    }
+}
+
+EmployeeAttendanceController:
+using Microsoft.AspNetCore.Mvc;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace EmployeeAttendanceManagement.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EmployeeAttendanceController : ControllerBase
+    {
+        // GET: api/<EmployeeAttendanceController>
+        [HttpGet]
+        public IEnumerable<EmployeeAttendanceDetailsModel> Get()
+        {
+            EmployeeAttendanceDetailsModel employeeAttendanceDetailsModel1 = new EmployeeAttendanceDetailsModel();
+            EmployeeAttendanceDetailsModel employeeAttendanceDetailsModel2 = new EmployeeAttendanceDetailsModel();
+
+            employeeAttendanceDetailsModel1.EmployeeId = 1;
+            employeeAttendanceDetailsModel2.EmployeeName = "Mariya Sharapova";
+            employeeAttendanceDetailsModel1.AttendancePercentage = 100;
+
+            employeeAttendanceDetailsModel2.EmployeeId = 2;
+            employeeAttendanceDetailsModel2.EmployeeName = "Ankit Mishra";
+            employeeAttendanceDetailsModel2.AttendancePercentage = 100;
+
+            List<EmployeeAttendanceDetailsModel> employeeAttendanceDetailsModels = new List<EmployeeAttendanceDetailsModel>()
+            {
+                employeeAttendanceDetailsModel1,
+                employeeAttendanceDetailsModel2
+            };
+            return employeeAttendanceDetailsModels;
+        }
+
+        /* // GET api/<EmployeeAttendanceController>/5
+         [HttpGet("{id}")]
+         public string Get(int id)
+         {
+             return "value";
+         }
+
+         // POST api/<EmployeeAttendanceController>
+         [HttpPost]
+         public void Post([FromBody] string value)
+         {
+         }
+
+         // PUT api/<EmployeeAttendanceController>/5
+         [HttpPut("{id}")]
+         public void Put(int id, [FromBody] string value)
+         {
+         }
+
+         // DELETE api/<EmployeeAttendanceController>/5
+         [HttpDelete("{id}")]
+         public void Delete(int id)
+         {
+         }*/
+    }
+}
+
+EmployeeRegistrationManagement:
+
+Program.cs
+
+using Scalar.AspNetCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+//Enable Swagger Json
+app.UseSwagger();
+
+//Enable Swagger UI
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
+});
+
+//Enable Scalar UI
+app.MapScalarApiReference(options =>
+{
+    options.Title = "My API Emp Reg Mgmt Reference";
+    options.Theme = ScalarTheme.DeepSpace;
+});
+
+//Optional: Redirect root URL to scalar
+app.MapGet("/",()=> Results.Redirect("/scalar"));
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+
+EmployeeRegistrationManagementController
+
+using Microsoft.AspNetCore.Mvc;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace EmployeeRegistrationManagement.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class EmployeeRegistrationManagementController : ControllerBase
+    {
+        // GET: api/<EmployeeRegistrationManagementController>
+        [HttpGet]
+        public IEnumerable<EmployeeRegistrationDetailsModel> Get()
+        {
+            EmployeeRegistrationDetailsModel employeeRegistrationDetailsModel1 = new EmployeeRegistrationDetailsModel();
+            EmployeeRegistrationDetailsModel employeeRegistrationDetailsModel2 = new EmployeeRegistrationDetailsModel();
+
+            employeeRegistrationDetailsModel1.EmployeeId = 1;
+            employeeRegistrationDetailsModel1.EmployeeName = "Ankit Mishra";
+            employeeRegistrationDetailsModel1.EmployeeDesignation = "Tech Lead";
+            employeeRegistrationDetailsModel1.DateofJoining = DateTime.Now;
+
+            employeeRegistrationDetailsModel2.EmployeeId = 1;
+            employeeRegistrationDetailsModel2.EmployeeName = "Ankita Mishra";
+            employeeRegistrationDetailsModel2.EmployeeDesignation = "Tech Lead";
+            employeeRegistrationDetailsModel2.DateofJoining = DateTime.Now;
+
+            List<EmployeeRegistrationDetailsModel> employeeRegistrationDetailslst = new List<EmployeeRegistrationDetailsModel> { 
+            employeeRegistrationDetailsModel1, 
+            employeeRegistrationDetailsModel2
+            };
+             return employeeRegistrationDetailslst;
+        }
+
+        /*  // GET api/<EmployeeRegistrationManagement>/5
+          [HttpGet("{id}")]
+          public string Get(int id)
+          {
+              return "value";
+          }
+
+          // POST api/<EmployeeRegistrationManagement>
+          [HttpPost]
+          public void Post([FromBody] string value)
+          {
+          }
+
+          // PUT api/<EmployeeRegistrationManagement>/5
+          [HttpPut("{id}")]
+          public void Put(int id, [FromBody] string value)
+          {
+          }
+
+          // DELETE api/<EmployeeRegistrationManagement>/5
+          [HttpDelete("{id}")]
+          public void Delete(int id)
+          {
+          }*/
+    }
+}
