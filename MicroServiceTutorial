@@ -1,1 +1,641 @@
 
+Agar aap **.NET / C# Developer (3-10 Years Experience)** interview de rahe ho, to System Design ke questions lagbhag har company me pooche jaate hain.
+
+Main yahan **simple Hindi + Interview Ready Answers** de raha hoon jo aap directly interview me bol sakte ho.
+
+***
+
+# 1. System Design Kya Hota Hai?
+
+### Answer
+
+System Design ka matlab hai kisi application ko is tarah design karna ki wo:
+
+* Scalable ho
+* Reliable ho
+* Secure ho
+* Maintainable ho
+* High traffic handle kar sake
+
+For example:
+
+Agar hume Amazon ya Flipkart jaisa system banana ho to sochna padega:
+
+* Data kaha store hoga?
+* APIs kaise communicate karengi?
+* Load kaise handle hoga?
+* Failure hone par recovery kaise hogi?
+
+***
+
+# 2. Scalability Kya Hoti Hai?
+
+### Answer
+
+Scalability ka matlab hai system ka zyada users aur requests handle kar pana.
+
+### 2 Types
+
+### Vertical Scaling
+
+Server ki power badhao.
+
+Example:
+
+* RAM 8 GB → 32 GB
+* CPU 4 Core → 16 Core
+
+### Horizontal Scaling
+
+Aur servers add karo.
+
+Example:
+
+1 Server → 5 Servers
+
+**Interview Line**
+
+> Horizontal scaling preferred hoti hai kyunki usme unlimited growth possible hoti hai.
+
+***
+
+# 3. Load Balancer Kya Hai?
+
+### Answer
+
+Load Balancer incoming requests ko multiple servers me distribute karta hai.
+
+### Example
+
+Without Load Balancer
+
+```text
+10000 Requests
+      |
+    Server 1
+```
+
+Server crash ho sakta hai.
+
+With Load Balancer
+
+```text
+10000 Requests
+      |
+Load Balancer
+ |    |    |
+S1   S2   S3
+```
+
+Requests sab servers me divide ho jayengi.
+
+### Benefits
+
+* Better performance
+* High availability
+* No single server overload
+
+***
+
+# 4. Caching Kya Hai?
+
+### Answer
+
+Frequently used data ko memory me store karna caching kehlata hai.
+
+Example:
+
+Product data har baar database se na laake cache se lao.
+
+### Tools
+
+* Redis
+* Memory Cache
+
+### Interview Line
+
+> Cache database load reduce karta hai aur response time improve karta hai.
+
+***
+
+# 5. Redis Kya Hai?
+
+### Answer
+
+Redis ek in-memory database hai.
+
+Data RAM me store karta hai.
+
+Isliye bahut fast hota hai.
+
+### Use Cases
+
+* Caching
+* Session Storage
+* Rate Limiting
+
+Example
+
+```text
+User Request
+      |
+    Redis
+      |
+    Database
+```
+
+Pehle Redis check karega.
+
+***
+
+# 6. Microservices Kya Hote Hain?
+
+### Answer
+
+Application ko chhote-chhote independent services me divide karna Microservices Architecture kehlata hai.
+
+Example
+
+```text
+User Service
+
+Order Service
+
+Payment Service
+
+Notification Service
+```
+
+Har service independently deploy ho sakti hai.
+
+### Benefits
+
+* Easy Maintenance
+* Independent Deployment
+* Better Scalability
+
+***
+
+# 7. Monolithic vs Microservices
+
+### Monolithic
+
+Sab kuch ek project me.
+
+```text
+User
+Order
+Payment
+Inventory
+```
+
+Single deployment.
+
+### Microservices
+
+```text
+User Service
+
+Order Service
+
+Payment Service
+
+Inventory Service
+```
+
+Alag deployment.
+
+### Interview Line
+
+> Small applications ke liye Monolithic, large enterprise applications ke liye Microservices better hota hai.
+
+***
+
+# 8. API Gateway Kya Hai?
+
+### Answer
+
+API Gateway clients aur microservices ke beech middle layer hoti hai.
+
+### Example
+
+Without Gateway
+
+```text
+Client -> User Service
+
+Client -> Order Service
+
+Client -> Payment Service
+```
+
+With Gateway
+
+```text
+Client
+   |
+API Gateway
+ |   |   |
+User Order Payment
+```
+
+### Benefits
+
+* Authentication
+* Routing
+* Logging
+* Rate Limiting
+
+### .NET Examples
+
+* Ocelot
+* YARP
+
+***
+
+# 9. Database Index Kya Hai?
+
+### Answer
+
+Index database searching fast karta hai.
+
+Without Index
+
+```text
+DB scans all rows
+```
+
+With Index
+
+```text
+Direct record find
+```
+
+### Interview Line
+
+> Index read performance improve karta hai but write operations thode slow ho jaate hain.
+
+***
+
+# 10. SQL vs NoSQL
+
+### SQL
+
+Examples:
+
+* SQL Server
+* MySQL
+
+Features:
+
+* Tables
+* Relationships
+* ACID
+
+### NoSQL
+
+Examples:
+
+* MongoDB
+* Cosmos DB
+
+Features:
+
+* Flexible Schema
+* High Scalability
+
+### Interview Line
+
+> Transaction-heavy systems ke liye SQL aur large-scale flexible data ke liye NoSQL use karte hain.
+
+***
+
+# 11. Message Queue Kya Hai?
+
+### Answer
+
+Services ke beech asynchronous communication ke liye queue use karte hain.
+
+Examples:
+
+* Kafka
+* RabbitMQ
+* Azure Service Bus
+
+### Flow
+
+```text
+Order Service
+      |
+      V
+    Queue
+      |
+      V
+Notification Service
+```
+
+### Benefits
+
+* Loose Coupling
+* Better Reliability
+
+***
+
+# 12. Kafka Kya Hai?
+
+### Answer
+
+Kafka ek distributed messaging system hai.
+
+High volume messages process kar sakta hai.
+
+### Use Cases
+
+* Event Streaming
+* Real Time Data
+* Logs Processing
+
+***
+
+# 13. Synchronous vs Asynchronous Communication
+
+### Synchronous
+
+```text
+Service A --> Service B
+          Wait
+```
+
+Response ka wait karega.
+
+### Asynchronous
+
+```text
+Service A --> Queue
+
+Continue Work
+```
+
+Wait nahi karega.
+
+### Interview Answer
+
+> Time-consuming operations ke liye asynchronous communication preferable hoti hai.
+
+***
+
+# 14. High Availability Kya Hai?
+
+### Answer
+
+System failure hone ke baad bhi available rahe.
+
+### Example
+
+```text
+Server1 Down
+
+Traffic automatically
+goes to Server2
+```
+
+Achieve Through:
+
+* Load Balancer
+* Multiple Servers
+* Replication
+
+***
+
+# 15. Database Replication Kya Hai?
+
+### Answer
+
+Database ka copy multiple servers par maintain karna replication kehlata hai.
+
+### Example
+
+```text
+Primary DB
+    |
+    |
+Replica DB
+```
+
+Benefits:
+
+* High Availability
+* Read Scaling
+
+***
+
+# 16. Rate Limiting Kya Hai?
+
+### Answer
+
+Ek user kitni requests kar sakta hai uski limit lagana.
+
+Example
+
+```text
+100 Requests/Minute
+```
+
+Benefits:
+
+* DDoS Protection
+* API Protection
+
+***
+
+# 17. Authentication vs Authorization
+
+### Authentication
+
+User kaun hai?
+
+```text
+Login
+Username Password
+```
+
+### Authorization
+
+User kya access kar sakta hai?
+
+```text
+Admin
+Customer
+Manager
+```
+
+### Easy Line
+
+> Authentication verifies identity, Authorization verifies permissions.
+
+***
+
+# 18. JWT Token Kya Hai?
+
+### Answer
+
+JWT ek token-based authentication mechanism hai.
+
+### Flow
+
+```text
+Login
+
+Generate JWT
+
+Client stores JWT
+
+JWT sent in every request
+```
+
+Benefits:
+
+* Stateless
+* Fast
+* Secure
+
+***
+
+# 19. CAP Theorem Kya Hai?
+
+### Answer
+
+Distributed system me ek saath 3 cheeze fully guarantee nahi kar sakte.
+
+* Consistency
+* Availability
+* Partition Tolerance
+
+### Interview Line
+
+> Practical systems usually CP ya AP choose karte hain.
+
+***
+
+# 20. Design a URL Shortener (Most Asked)
+
+### Requirements
+
+```text
+Input:
+https://google.com
+
+Output:
+abc123
+```
+
+### Components
+
+```text
+Client
+
+Load Balancer
+
+API
+
+Database
+
+Cache
+```
+
+### Flow
+
+```text
+Long URL
+
+Generate Unique Key
+
+Save DB
+
+Return Short URL
+```
+
+***
+
+# 21. Design an E-Commerce System
+
+### Services
+
+```text
+API Gateway
+
+User Service
+
+Product Service
+
+Cart Service
+
+Order Service
+
+Payment Service
+
+Notification Service
+```
+
+### Database
+
+```text
+SQL Server
+```
+
+### Cache
+
+```text
+Redis
+```
+
+### Queue
+
+```text
+Kafka/RabbitMQ
+```
+
+***
+
+# 22. Interview Me Architecture Kaise Draw Kare?
+
+```text
+Client
+   |
+Load Balancer
+   |
+API Gateway
+   |
+------------------
+|   |   |   |    |
+User Order Product Payment
+Service Service Service Service
+   |
+ Redis
+   |
+ SQL Server
+   |
+ Kafka
+```
+
+Ye diagram 70% system design interviews me kaam aa jata hai.
+
+***
+
+# 5 Most Important Answers (Yaad Kar Lo)
+
+✅ Load Balancer → Traffic distribute karta hai
+
+✅ Redis → Fast cache hai, RAM me data store karta hai
+
+✅ API Gateway → Single entry point for microservices
+
+✅ Kafka/RabbitMQ → Asynchronous communication
+
+✅ Microservices → Independent deployment aur scaling
+
+### 1-Minute Interview Introduction
+
+> "System Design me main scalability, reliability aur performance par focus karta hoon. High traffic applications ke liye Load Balancer, API Gateway, Redis Cache, SQL Server aur Kafka/RabbitMQ use karta hoon. Large enterprise applications me Microservices architecture prefer karta hoon kyunki services independently deploy aur scale ho sakti hain."
+
+Ye answer .NET/C# Developer interviews me bahut strong impression create karta hai.
