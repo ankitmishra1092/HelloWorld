@@ -104,3 +104,134 @@ If we want to display all records that are duplicate, including the first occurr
 ✅ Correct answer for your requirement: Use COUNT(*) OVER() with CTE.
 
 */
+
+=========Rank Dense Rank and Row Number==========
+SELECT * FROM Employee;
+Id  Name   Salary
+--  -----  ------
+1   Ankit  50000
+2   Rahul  60000
+3   Priya  55000
+1   Ankit  50000
+2   Rahul  60000
+4   Neha   70000
+1   Ankit  50000
+
+1. ROW_NUMBER()
+Assigns a unique sequential number to each row within a partition.
+SELECT *,
+       ROW_NUMBER() OVER
+       (
+           PARTITION BY Id, Name, Salary
+           ORDER BY Id
+       ) AS RN
+FROM Employee;
+
+Id  Name   Salary   RN
+1   Ankit  50000    1
+1   Ankit  50000    2
+1   Ankit  50000    3
+2   Rahul  60000    1
+2   Rahul  60000    2
+3   Priya  55000    1
+4   Neha   70000    1
+
+Use Case
+✅ Finding duplicate records
+
+WITH CTE AS
+(
+    SELECT *,
+           ROW_NUMBER() OVER
+           (
+               PARTITION BY Id,Name,Salary
+               ORDER BY Id
+           ) RN
+    FROM Employee
+)
+SELECT *
+FROM CTE
+WHERE RN > 1;
+
+1 Ankit 50000 2
+1 Ankit 50000 3
+2 Rahul 60000 2
+
+2. RANK()
+Assigns the same rank to duplicate values but skips ranks.
+
+SELECT
+    Name,
+    Salary,
+    RANK() OVER(ORDER BY Salary DESC) AS RankNo
+FROM Employee;
+
+Name   Salary  RankNo
+-----  ------  ------
+Neha   70000      1
+Amit   65000      2
+Rahul  60000      3
+Rahul  60000      3
+Priya  55000      5
+Ankit  50000      6
+Ankit  50000      6
+Ankit  50000      6
+
+Rank 4 is skipped.
+Use Case
+✅ Leaderboards
+✅ Finding Top N salaries
+✅ Competition ranking
+
+3. DENSE_RANK()
+Assigns the same rank to duplicates but does not skip ranks.
+
+SELECT
+    Name,
+    Salary,
+    DENSE_RANK() OVER(ORDER BY Salary DESC) AS DenseRankNo
+FROM Employee;
+
+Name   Salary  DenseRankNo
+-----  ------  -----------
+Neha   70000      1
+Amit   65000      2
+Rahul  60000      3
+Rahul  60000      3
+Priya  55000      4
+Ankit  50000      5
+Ankit  50000      5
+Ankit  50000      5
+
+No ranks are skipped.
+
+Find 2nd Highest Salary
+Using DENSE_RANK() (Recommended)
+
+WITH SalaryCTE AS
+(
+    SELECT Salary,
+           DENSE_RANK() OVER (ORDER BY Salary DESC) AS DR
+    FROM Employee
+)
+SELECT DISTINCT Salary
+FROM SalaryCTE
+WHERE DR = 2;
+
+Find Both 2nd and 3rd Highest Salary Together
+
+WITH SalaryCTE AS
+(
+    SELECT Salary,
+           DENSE_RANK() OVER (ORDER BY Salary DESC) AS DR
+    FROM Employee
+)
+SELECT DISTINCT Salary, DR
+FROM SalaryCTE
+WHERE DR IN (2,3);
+
+Salary   DR
+------   --
+60000    2
+55000    3
+``
