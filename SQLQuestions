@@ -1,0 +1,106 @@
+create database testDB
+CREATE TABLE Employee
+(
+    Id INT,
+    Name VARCHAR(100),
+    Salary DECIMAL(10,2)
+);
+
+INSERT INTO Employee (Id, Name, Salary)
+VALUES
+(1, 'Ankit', 50000),
+(2, 'Rahul', 60000),
+(3, 'Priya', 55000),
+(1, 'Ankit', 50000),   -- Duplicate
+(2, 'Rahul', 60000),   -- Duplicate
+(4, 'Neha', 70000),
+(5, 'Amit', 65000),
+(1, 'Ankit', 50000);   -- Duplicate
+
+
+INSERT INTO Employee (Id, Name, Salary)
+VALUES
+(1, 'Ankit', 50000),
+(2, 'Rahul', 60000),
+(3, 'Priya', 55000),
+(1, 'Ankit', 50000),
+(2, 'Rahul', 60000),
+(4, 'Neha', 70000),
+(1, 'Ankit', 50000);
+
+
+truncate table Employee;
+
+select * from Employee
+
+-- Duplicate Record  using group by having clause
+SELECT
+    Id,
+    Name,
+    Salary,
+    COUNT(*) AS DuplicateCount
+FROM Employee
+GROUP BY
+    Id,
+    Name,
+    Salary
+HAVING COUNT(*) > 1;
+
+--select * from Employee;
+--Using common table expression
+WITH DuplicateCTE AS
+(
+    SELECT *,
+           ROW_NUMBER() OVER
+           (
+               PARTITION BY Id, Name, Salary
+               ORDER BY Id
+           ) AS RN
+    FROM Employee
+)
+SELECT *
+FROM DuplicateCTE
+WHERE RN > 1;
+
+/*
+PARTITION BY Id, Name, Salary groups identical records.
+ROW_NUMBER() assigns row numbers within each group.
+The first occurrence gets RN = 1.
+Duplicate occurrences get RN > 1.
+*/
+
+
+--Below query will list all duplicate rows with their count number of times they appeared
+WITH DuplicateCTE AS
+(
+   SELECT *,
+           COUNT(*) OVER
+           (
+               PARTITION BY Id, Name, Salary
+         ) AS DuplicateCount
+    FROM Employee
+)
+SELECT *
+FROM DuplicateCTE
+WHERE DuplicateCount > 1;
+
+-- This will give info of number of times  same record is appearing, It will not list duplicate records
+SELECT
+    Id,
+    Name,
+    Salary,
+    COUNT(*) AS DuplicateCount
+FROM Employee
+GROUP BY
+    Id,
+    Name,
+    Salary
+HAVING COUNT(*) > 1;
+
+/*
+If we use ROW_NUMBER() and filter RN > 1, it gives only duplicate extra rows, excluding the first record.
+If we want to display all records that are duplicate, including the first occurrence, we should use COUNT(*) OVER(PARTITION BY columns) and filter count greater than 1.
+
+✅ Correct answer for your requirement: Use COUNT(*) OVER() with CTE.
+
+*/
